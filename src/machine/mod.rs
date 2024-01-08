@@ -12,6 +12,7 @@ pub mod disjuncts;
 pub mod dispatch;
 pub mod gc;
 pub mod heap;
+pub mod inlined_partial_string;
 pub mod lib_machine;
 pub mod load_state;
 pub mod machine_errors;
