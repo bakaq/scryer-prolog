@@ -2754,6 +2754,40 @@ impl Machine {
 
                         step_or_fail!(self, self.machine_st.p += 1);
                     }
+                    &Instruction::GetInlinedPartialString(_, _string, reg, _has_tail) => {
+                        let deref_v = self.machine_st.deref(self.machine_st[reg]);
+                        let store_v = self.machine_st.store(deref_v);
+
+                        read_heap_cell!(store_v,
+                            (HeapCellValueTag::Str |
+                             HeapCellValueTag::Lis |
+                             HeapCellValueTag::PStrLoc |
+                             HeapCellValueTag::CStr) => {
+                                todo!()
+                                //self.machine_st.match_partial_string(store_v, string, has_tail);
+                            }
+                            (HeapCellValueTag::AttrVar |
+                             HeapCellValueTag::StackVar |
+                             HeapCellValueTag::Var) => {
+                                todo!()
+                                //let target_cell = self.machine_st.push_str_to_heap(
+                                //    &string.as_str(),
+                                //    has_tail,
+                                //);
+
+                                //self.machine_st.bind(
+                                //    store_v.as_var().unwrap(),
+                                //    target_cell,
+                                //);
+                            }
+                            _ => {
+                                self.machine_st.backtrack();
+                                continue;
+                            }
+                        );
+
+                        step_or_fail!(self, self.machine_st.p += 1);
+                    }
                     &Instruction::GetStructure(_lvl, name, arity, reg) => {
                         let deref_v = self.machine_st.deref(self.machine_st[reg]);
                         let store_v = self.machine_st.store(deref_v);

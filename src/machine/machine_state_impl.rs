@@ -1012,6 +1012,21 @@ impl MachineState {
         }
     }
 
+    #[inline(always)]
+    pub(super) fn push_inline_str_to_heap(&mut self, pstr: &str, has_tail: bool) -> HeapCellValue {
+        let h = self.heap.len();
+
+        if has_tail {
+            self.s = HeapPtr::HeapCell(h + 1);
+            self.s_offset = 0;
+            self.mode = MachineMode::Read;
+
+            put_partial_string(&mut self.heap, pstr, &self.atom_tbl)
+        } else {
+            put_complete_string(&mut self.heap, pstr, &self.atom_tbl)
+        }
+    }
+
     pub(super) fn write_literal_to_var(&mut self, deref_v: HeapCellValue, lit: HeapCellValue) {
         let store_v = self.store(deref_v);
 

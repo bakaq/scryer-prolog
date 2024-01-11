@@ -619,6 +619,8 @@ enum InstructionTemplate {
     GetList(Level, RegType),
     #[strum_discriminants(strum(props(Arity = "4", Name = "get_partial_string")))]
     GetPartialString(Level, Atom, RegType, bool),
+    #[strum_discriminants(strum(props(Arity = "4", Name = "get_inlined_partial_string")))]
+    GetInlinedPartialString(Level, Atom, RegType, bool),
     #[strum_discriminants(strum(props(Arity = "3", Name = "get_structure")))]
     GetStructure(Level, Atom, usize, RegType),
     #[strum_discriminants(strum(props(Arity = "2", Name = "get_variable")))]
@@ -1176,6 +1178,7 @@ fn generate_instruction_preface() -> TokenStream {
                     Instruction::GetConstant(..) |
                     Instruction::GetList(..) |
                     Instruction::GetPartialString(..) |
+                    Instruction::GetInlinedPartialString(..) |
                     Instruction::GetStructure(..) |
                     Instruction::GetValue(..) |
                     Instruction::UnifyConstant(..) |
@@ -2155,6 +2158,21 @@ fn generate_instruction_preface() -> TokenStream {
                         )
                     }
                     &Instruction::GetPartialString(lvl, s, r, has_tail) => {
+                        let lvl_stub = lvl.into_functor();
+                        let rt_stub = reg_type_into_functor(r);
+
+                        functor!(
+                            atom!("get_partial_string"),
+                            [
+                                str(h, 0),
+                                string(h, s),
+                                str(h, 1),
+                                boolean(has_tail)
+                            ],
+                            [lvl_stub, rt_stub]
+                        )
+                    }
+                    &Instruction::GetInlinedPartialString(lvl, s, r, has_tail) => {
                         let lvl_stub = lvl.into_functor();
                         let rt_stub = reg_type_into_functor(r);
 
